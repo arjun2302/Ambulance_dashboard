@@ -1,0 +1,51 @@
+```{r}
+library(readr)
+library(jsonlite)
+library(tools)
+
+# Specify the path to the ambulance folder
+folder_path <- "Ambulance Nov 20"
+
+# Get the list of files in the folder
+file_list <- list.files(folder_path, full.names = TRUE)
+
+# Define a function to process each file
+process_file <- function(file) {
+  
+  file_name <- file_path_sans_ext(basename(file))
+  # Load the .rds file
+  data <- readRDS(file)
+  
+  df1 <- data[[2]][[1]]
+  df2 <- data[[2]][[2]]
+  df3 <- data[[2]][[3]]
+  df4 <- data[[2]][[4]]
+  df5 <- data[[2]][[5]]
+  
+  # Add the "File_Name" column to each dataframe
+  df1$File_Name <- file_name
+  df2$File_Name <- file_name
+  df3$File_Name <- file_name
+  df4$File_Name <- file_name
+  df5$File_Name <- file_name
+  
+  # Merge the dataframes based on the 'HOSP_SHORT' column
+  merged_df <- merge(df1, df5, by = "HOSP_SHORT", all = FALSE)
+  
+  # Get the base name of the file without the path and extension
+  file_name <- file_path_sans_ext(basename(file))
+  
+  # Write the merged dataframe to a CSV file
+  write.table(merged_df, "Emergency_Department.csv", append = TRUE, sep = ",", col.names = TRUE, row.names = FALSE)
+  
+  # Write df2, df3, and df4 to separate CSV files
+    write.table(df2, "FMC_Triage_Category.csv", append = TRUE, sep = ",", col.names = TRUE, row.names = FALSE)
+      write.table(df3, "Inpatient_Bed_Status.csv", append = TRUE, sep = ",", col.names = TRUE, row.names = FALSE)
+        write.table(df4, "Available_Specialty_Beds.csv", append = TRUE, sep = ",", col.names = TRUE, row.names = FALSE)
+}
+
+# Apply the process_file function to each file in the file_list
+lapply(file_list, process_file)
+
+```
+
